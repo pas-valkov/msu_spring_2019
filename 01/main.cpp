@@ -14,7 +14,7 @@ int binary_search (const int* s, int n, int elem, int type) {
 		m = (l+r)>>1;
 		if (s[m] == elem) {
 			while (s[m] == elem && m < n && m >= 0)
-				m += type;
+				m+=type;
 			return m-type;
 		}
 		else if (s[m] > elem) {
@@ -54,7 +54,7 @@ int main (int argc, char* argv[]) {
 		else {
 			int count = 0;
 			for (int j = a1; j <= b1; ++j)
-				count += S[Data[j]];
+				count+=S[Data[j]];
 			printf("%d\n", count);
 		}
    }
