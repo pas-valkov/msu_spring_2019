@@ -11,10 +11,10 @@ int binary_search (const int* s, int n, int elem, int type) {
 	int l = 0; int r = n-1; int m;
 	
 	while (l <= r) {
-		m = (l+r)>>1;
+		m = (l+r) >> 1;
 		if (s[m] == elem) {
 			while (s[m] == elem && m < n && m >= 0)
-				m+=type;
+				m += type;
 			return m-type;
 		}
 		else if (s[m] > elem) {
@@ -45,9 +45,9 @@ int main (int argc, char* argv[]) {
 	bool *S = new bool [N];
 	find_prime(S, N);
 	
-	for (int i = 1; i < argc; i += 2) {
-		int a1 = binary_search(Data, sizeof(Data)/sizeof(int), atoi(argv[i]), -1);
-		int b1 = binary_search(Data, sizeof(Data)/sizeof(int), atoi(argv[i+1]), 1);
+	for (int i = 1; i < argc; i+=2) {
+		int a1 = binary_search(Data, Size, atoi(argv[i]), -1);
+		int b1 = binary_search(Data, Size, atoi(argv[i+1]), 1);
 		//~ printf("(%d, %d)\n", a1, b1);
 		if (a1 == -1 || b1 == -1 || a1 > b1)
 			printf ("0\n");
