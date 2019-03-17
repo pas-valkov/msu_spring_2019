@@ -57,7 +57,7 @@ int main (int argc, char* argv[]) {
 				count+=S[Data[j]];
 			printf("%d\n", count);
 		}
-   }
+   } 
    delete[]S;
    return 0;
 }
