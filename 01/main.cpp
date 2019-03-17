@@ -54,7 +54,7 @@ int main (int argc, char* argv[]) {
         else {
             int count = 0;
             for (int j = a1; j <= b1; ++j)
-                count+=S[Data[j]];
+                count += S[Data[j]];
             printf("%d\n", count);
         }
    }
