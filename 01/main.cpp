@@ -1,6 +1,7 @@
 #include "numbers.dat"
-#include <cstdio>
+//~ #include <cstdio>
 #include <cstdlib>
+#include <iostream>
 
 const int N = 100000+1;//max integer from range
 
@@ -31,9 +32,9 @@ void find_prime (bool* S, int n) {
     for (int k = 3; k < N; ++k)
         S[k] = k&1;
     
-    for (int k = 3; k*k <= N; k+=2) {
+    for (int k = 3; k*k <= N; k += 2) {
         if (S[k])
-            for (int l = k*k; l <= N; l+=k)
+            for (int l = k*k; l <= N; l += k)
                 S[l] = 0;
     }
 }
@@ -45,17 +46,18 @@ int main (int argc, char* argv[]) {
     bool *S = new bool [N];
     find_prime(S, N);
     
-    for (int i = 1; i < argc; i+=2) {
+    for (int i = 1; i < argc; i += 2) {
         int a1 = binary_search(Data, Size, atoi(argv[i]), -1);
         int b1 = binary_search(Data, Size, atoi(argv[i+1]), 1);
-        //~ printf("(%d, %d)\n", a1, b1);
         if (a1 == -1 || b1 == -1 || a1 > b1)
-            printf ("0\n");
+            cout << "0" << endl;
+            //~ printf ("0\n");
         else {
             int count = 0;
             for (int j = a1; j <= b1; ++j)
                 count += S[Data[j]];
-            printf("%d\n", count);
+            //~ printf("%d\n", count);
+            cout << count << endl;
         }
    }
    delete[]S;
