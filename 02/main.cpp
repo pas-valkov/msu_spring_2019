@@ -106,6 +106,9 @@ int64_t calc_sum(const vector<string>& args) {
 }
 
 int main(int argc, char* argv[]) {
+    ios_base::sync_with_stdio(false);
+    cin.tie(nullptr);
+    
     if (argc != 2) {
         cout << "error" << endl;
         return 1;
