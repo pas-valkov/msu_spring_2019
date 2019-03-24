@@ -119,7 +119,7 @@ int main(int argc, char* argv[]) {
             throw string("error");
         cout << calc_sum(splited) << endl;
     }
-    catch (string error_str) {
+    catch (string& error_str) {
         cout << error_str << endl;
         return 1;
     }
