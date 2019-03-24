@@ -30,7 +30,7 @@ vector<string> split(const string& strToSplit) {
     return splittedStrings;
 }
 
-int64_t get_int(const vector<string>& args, int64_t &id) {
+int64_t get_int(const vector<string>& args, int64_t& id) {
     int64_t number = 0;
     bool is_negative = false;
     while (id < args.size()) {
