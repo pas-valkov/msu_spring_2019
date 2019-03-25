@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <vector>
 #include <string>
+#include <exception>
 
 using namespace std;
 
@@ -24,7 +25,7 @@ vector<string> split(const string& strToSplit) {
             --i;
         }
         else {
-            throw string("error");
+            throw exception();
         }
     }
     return splittedStrings;
@@ -54,7 +55,7 @@ bool no_consecutive_numbers(const vector<string>& s) {
         bool is_op = (s[1] == "+" or s[1] == "-" 
                    or s[1] == "*" or s[1] == "/");
         if (!is_op and !is_op_prev) {
-            throw string("error");
+            throw exception();
         }
         is_op_prev = is_op;
     }
@@ -75,12 +76,12 @@ int64_t calc_term(const vector<string>& args, int64_t first, int64_t& id) {
         }
         else if (op == '/') {
             if (cur_int == 0) {
-                throw string("error");
+                throw exception();
             }
             term_mul /= cur_int;
         }
         else {
-            throw string("error");
+            throw exception();
         }
     }
     return term_mul;
@@ -116,11 +117,11 @@ int main(int argc, char* argv[]) {
     try {
         vector<string> splited = split(argv[1]);
         if (splited.back() > "9" or splited.back() < "0")
-            throw string("error");
+            throw exception();
         cout << calc_sum(splited) << endl;
     }
-    catch (string& error_str) {
-        cout << error_str << endl;
+    catch (const exception& e) {
+        cout << "error" << endl;
         return 1;
     }
     return 0;
