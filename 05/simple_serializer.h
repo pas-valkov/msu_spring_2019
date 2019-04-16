@@ -10,6 +10,7 @@ enum class Error {
 class Serializer {
     static constexpr char Separator = ' ';
     std::ostream& out_;
+    
 public:
     explicit Serializer(std::ostream& out)
         : out_(out) {
@@ -45,6 +46,7 @@ private:
 
 class Deserializer {
     std::istream& in_;
+    
 public:
     explicit Deserializer(std::istream& in)
         : in_(in) {
@@ -96,6 +98,5 @@ private:
     bool is_uint64_t_number(const std::string& s) {
         return !s.empty() && std::find_if(s.begin(), 
             s.end(), [](char c) { return !std::isdigit(c); }) == s.end();
-    }
-    
+    } 
 };
