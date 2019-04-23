@@ -35,10 +35,10 @@ private:
         return err = Error::NoError;
     }
     
-    void process(bool& arg) {
+    void process(bool arg) {
         out_ << (arg ? "true" : "false") << Separator;
     }
-    void process(uint64_t& arg) {
+    void process(uint64_t arg) {
         out_ << arg << Separator;
     }
 };
