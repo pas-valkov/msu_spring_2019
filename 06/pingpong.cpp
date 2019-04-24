@@ -32,6 +32,8 @@ void pong() {
 }
 
 int main() {
+    std::ios_base::sync_with_stdio(false);
+    std::cin.tie(nullptr);
     std::thread t1(ping);
     std::thread t2(pong);
     t1.join();
