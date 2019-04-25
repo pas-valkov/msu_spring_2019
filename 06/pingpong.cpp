@@ -16,7 +16,7 @@ void pingpong(bool is_sender) {
         ++counter;
         condition = !condition;
         if (is_sender)
-        	std::cout << "ping\n";
+            std::cout << "ping\n";
         else
         	std::cout << "pong\n";
         ready.notify_one();
