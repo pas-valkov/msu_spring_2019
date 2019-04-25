@@ -12,7 +12,8 @@ std::condition_variable ready;
 void pingpong(bool is_sender) {
     std::unique_lock<std::mutex> lock(mutex);
     while (counter < N - is_sender)    {
-        ready.wait(lock, [&]{return is_sender ? condition : !condition;});
+        ready.wait(lock, [is_sender]{
+            return is_sender ? condition : !condition;});
         ++counter;
         condition = !condition;
         if (is_sender)
