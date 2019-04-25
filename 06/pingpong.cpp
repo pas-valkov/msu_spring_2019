@@ -5,28 +5,20 @@
 
 const size_t N = 1000000;
 size_t counter = 0;
-bool condition = false;
+bool condition = true;
 std::mutex mutex;
 std::condition_variable ready;
 
-void ping() {
+void pingpong(bool is_sender) {
     std::unique_lock<std::mutex> lock(mutex);
-    while (counter < N-1) {
-        ready.wait(lock, []{return !condition;});
+    while (counter < N - is_sender)    {
+        ready.wait(lock, [&]{return is_sender ? condition : !condition;});
         ++counter;
         condition = !condition;
-        std::cout << "ping\n";
-        ready.notify_one();
-    }
-}
-
-void pong() {
-    std::unique_lock<std::mutex> lock(mutex);
-    while (counter < N)    {
-        ready.wait(lock, []{return condition;});
-        ++counter;
-        condition = !condition;
-        std::cout << "pong\n";
+        if (is_sender)
+        	std::cout << "ping\n";
+        else
+        	std::cout << "pong\n";
         ready.notify_one();
     }
 }
@@ -34,8 +26,8 @@ void pong() {
 int main() {
     std::ios_base::sync_with_stdio(false);
     std::cin.tie(nullptr);
-    std::thread t1(ping);
-    std::thread t2(pong);
+    std::thread t1(pingpong, 1);
+    std::thread t2(pingpong, 0);
     t1.join();
     t2.join();
     return 0;
