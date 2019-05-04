@@ -9,14 +9,14 @@ bool condition = true;
 std::mutex mutex;
 std::condition_variable ready;
 
-void pingpong(const char* str) {
+void pingpong(bool is_first) {
     std::unique_lock<std::mutex> lock(mutex);
-    while (counter < N - (str == "ping"))    {
-        ready.wait(lock, [str]{
-            return (str == "ping") ? condition : !condition;});
+    while (counter < N - int(is_first))    {
+        ready.wait(lock, [is_first]{
+            return is_first ? condition : !condition;});
         ++counter;
         condition = !condition;
-        std::cout << str << "\n";
+        std::cout << (is_first ? "ping" : "pong") << "\n";
         ready.notify_one();
     }
 }
@@ -24,8 +24,8 @@ void pingpong(const char* str) {
 int main() {
     std::ios_base::sync_with_stdio(false);
     std::cin.tie(nullptr);
-    std::thread t1(pingpong, "ping");
-    std::thread t2(pingpong, "pong");
+    std::thread t1(pingpong, 1);
+    std::thread t2(pingpong, 0);
     t1.join();
     t2.join();
     return 0;
