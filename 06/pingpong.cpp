@@ -24,8 +24,8 @@ void pingpong(bool is_first) {
 int main() {
     std::ios_base::sync_with_stdio(false);
     std::cin.tie(nullptr);
-    std::thread t1(pingpong, 1);
-    std::thread t2(pingpong, 0);
+    std::thread t1(pingpong, true);
+    std::thread t2(pingpong, false);
     t1.join();
     t2.join();
     return 0;
