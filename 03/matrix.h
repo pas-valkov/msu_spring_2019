@@ -2,9 +2,6 @@
 #define MATRIX
 
 #include <iostream>
-#include <sstream>
-#include <algorithm>
-#include <cstdlib>
 
 using namespace std;
 
@@ -12,11 +9,11 @@ class Matrix {
     
     class Row {
         friend class Matrix;
-        size_t cols;
+        size_t cols = 0;
         int* row = nullptr;
     public:
     
-        Row() : cols(0) {}
+        Row() {}
         
         Row(size_t _cols) : cols(_cols) {
             row = new int [cols];
@@ -35,6 +32,7 @@ class Matrix {
         }
         
         //~ ~Row () { delete[] row; }
+        void destructor() { delete[] row; }
     };
     
     size_t rows, cols;
@@ -54,7 +52,7 @@ public:
         return matrix[a];
     }
     
-    Row& operator[](size_t a) const {
+    const Row& operator[](size_t a) const {
         if (a >= rows)
             throw out_of_range("");
         return matrix[a];
@@ -70,6 +68,8 @@ public:
     bool operator==(const Matrix& m) const {
         if (this == &m)
             return true;
+        if (m.rows != rows || m.cols != cols)
+            return false;
         for (size_t i = 0; i < rows; ++i)
             for (size_t j = 0; j < cols; ++j)
                 if (matrix[i][j] != m.matrix[i][j])
@@ -83,7 +83,8 @@ public:
     
     ~Matrix() {
         for (size_t i = 0; i < rows; ++i)
-            delete[] matrix[i].row;
+            matrix[i].destructor();
+            //~ delete[] matrix[i].row;
         delete[] matrix;
     }
 
