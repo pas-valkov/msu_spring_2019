@@ -13,9 +13,9 @@ class Matrix {
         int* row = nullptr;
     public:
     
-        Row() {}
+        //Row() {}
         
-        Row(size_t _cols) : cols(_cols) {
+        Row(size_t cols) : cols(cols) {
             row = new int [cols];
         }
         
@@ -40,10 +40,12 @@ class Matrix {
             
 public:
     
-    Matrix(size_t _rows, size_t _cols) : rows(_rows), cols(_cols) {
-        matrix = new Row [rows];
+    Matrix(size_t rows, size_t cols) : rows(rows), cols(cols) {
+        matrix = static_cast<Row*>(operator new[] (rows*sizeof(Row)));
+        //~ matrix = new Row [rows];
         for (size_t i = 0; i < rows; ++i)
-            matrix[i] = Row(cols);
+            new (&matrix[i]) Row(cols);
+            //~ matrix[i] = Row(cols);
     }
 
     Row& operator[](size_t a) {
