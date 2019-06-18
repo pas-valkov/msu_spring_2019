@@ -9,14 +9,15 @@
 
 using namespace std;
 
-const char* infilename = "data_init.dat";
-const char* outfilename = "data.txt";
+const char* infilename = "data_init.bin";
+const char* outfilename = "data.bin";
+const char* restfilename = "rest.bin";
+const char* tempfilename = "temp.bin";
 
+const char* fname1 = "main_1.bin";
+const char* fname2 = "main_2.bin";
 
-const char* fname1 = "main_1.dat";
-const char* fname2 = "main_2.dat";
-
-size_t batch_size = 1000;
+size_t batch_size = 50;
 //~ size_t proc_number = 2;
 size_t file_size_in_nums;
 
@@ -42,9 +43,9 @@ void divide_data_for_procs() {
     if (file_size_in_nums%batch_size) {
         size_t rest = file_size_in_nums%batch_size;
         f.read(reinterpret_cast<char*>(&v[0]), sizeof(uint64_t)*rest);
-        ofstream frest("rest.txt", ios::out | std::ios::binary);
-        for (size_t i = 0; i < rest; ++i) frest << v[i] << ' ';
-        //~ frest.write(reinterpret_cast<const char*>(&v[0]), rest*sizeof(v[0]));
+        ofstream frest(restfilename, ios::out | std::ios::binary);
+        //~ for (size_t i = 0; i < rest; ++i) frest << v[i] << ' ';
+        frest.write(reinterpret_cast<const char*>(&v[0]), rest*sizeof(v[0]));
         frest.close();
     }
     
@@ -53,16 +54,50 @@ void divide_data_for_procs() {
     f.close();
 }
 
+
 void base_merge (const char* f1, const char* f2, const char* f3) {
     ifstream file1(f1, ios::in | ios::binary);
     ifstream file2(f2, ios::in | ios::binary);
     ofstream fout(f3, ios::out | ios::binary);
 
-    using istream_iterator = std::istream_iterator<uint64_t> ;
+    uint64_t v1, v2;
 
-    std::merge( istream_iterator(file1), istream_iterator(),
-                istream_iterator(file2), istream_iterator(),
-                ostream_iterator<uint64_t>(fout, " ") );    
+    file1.read(reinterpret_cast<char*>(&v1), sizeof(uint64_t));
+    file2.read(reinterpret_cast<char*>(&v2), sizeof(uint64_t));
+
+    while(true) {
+        if (file1.eof()) {
+            fout.write(reinterpret_cast<char*>(&v2), sizeof(uint64_t));
+            //~ while(!file2.eof()) {
+            while(true) {
+                file2.read(reinterpret_cast<char*>(&v2), sizeof(uint64_t));
+                if (file2.eof())
+                    break;
+                fout.write(reinterpret_cast<char*>(&v2), sizeof(uint64_t));
+            }
+            break;
+        }
+        if (file2.eof()) {
+            fout.write(reinterpret_cast<char*>(&v1), sizeof(uint64_t));
+            //~ while(!file1.eof()) {
+            while(true) {
+                file1.read(reinterpret_cast<char*>(&v1), sizeof(uint64_t));
+                if (file1.eof())
+                    break;
+                fout.write(reinterpret_cast<char*>(&v1), sizeof(uint64_t));
+            }
+            break;
+        }
+        if (v1 < v2) {
+            fout.write(reinterpret_cast<char*>(&v1),  sizeof(uint64_t));
+            file1.read(reinterpret_cast<char*>(&v1), sizeof(uint64_t));
+        }
+        else {
+            fout.write(reinterpret_cast<char*>(&v2),  sizeof(uint64_t));
+            file2.read(reinterpret_cast<char*>(&v2), sizeof(uint64_t));
+        }
+    }
+    
     file1.close();
     file2.close();
     fout.close();
@@ -70,17 +105,23 @@ void base_merge (const char* f1, const char* f2, const char* f3) {
 
 void merge_files(char proc_number, size_t size_in_batch) {
     string name3 = string(1, proc_number) + "__" + outfilename;
-    for (size_t i = 0; i < size_in_batch-1; ++i) {
-        //~ string name1 = string(1, proc_number) + "_" + to_string(i) + ".dat"; //c .dat merge не хочет работать
-        //~ string name2 = string(1, proc_number) + "_" + to_string(i+1) + ".dat";
-        string name1 = string(1, proc_number) + "_" + to_string(i) + ".txt";
-        string name2 = string(1, proc_number) + "_" + to_string(i+1) + ".txt";
-        base_merge(name1.c_str(), name2.c_str(), name3.c_str());
-        //~ return;
-        remove(name1.c_str());
-        remove(name2.c_str());
-        if (i != size_in_batch-2)
-            rename(name3.c_str(), name2.c_str());
+    
+    if (size_in_batch-1 == 0) {
+        string s = string(1, proc_number) + "_0.bin";
+        rename(s.c_str(), name3.c_str());
+        remove(s.c_str());
+    }
+    else {
+        for (size_t i = 0; i < size_in_batch-1; ++i) {
+            string name1 = string(1, proc_number) + "_" + to_string(i) + ".bin";
+            string name2 = string(1, proc_number) + "_" + to_string(i+1) + ".bin";
+            base_merge(name1.c_str(), name2.c_str(), name3.c_str());
+            //~ exit(0);
+            remove(name1.c_str());
+            remove(name2.c_str());
+            if (i != size_in_batch-2)
+                rename(name3.c_str(), name2.c_str());
+        }
     }
 }
 
@@ -94,24 +135,23 @@ void separation(const char* fname1, char proc_number) {
         if (f.eof())
             break;
         sort(v.begin(), v.end());
-        string name = string(1, proc_number) + "_" + to_string(i) + ".txt";
+        string name = string(1, proc_number) + "_" + to_string(i) + ".bin";
         ofstream tmp(name, ios::out | ios::binary);
-        for (auto x : v) tmp << x << ' ';
-        //~ tmp.write(reinterpret_cast<char*>(&v[0]), sizeof(uint64_t)*batch_size);
+        //~ for (auto x : v) cout << x << ' ';
+        tmp.write(reinterpret_cast<char*>(&v[0]), sizeof(uint64_t)*batch_size);
         tmp.close();
         i++;
     }
     f.close();
     
     merge_files(proc_number, i);
-    
 }
 
 void remove_final_files() {
-    remove("0__data.txt");
-    remove("1__data.txt");
-    remove("rest.txt");
-    remove("temp.txt");
+    remove("0__data.bin");
+    remove("1__data.bin");
+    remove(restfilename);
+    remove(tempfilename);
     remove(fname1);
     remove(fname2);
 }
@@ -119,14 +159,14 @@ void remove_final_files() {
 int main() {
     file_size_in_nums = filesize(infilename);
     divide_data_for_procs();
-    //~ separation(fname1, '0'); //0__data.txt
-    //~ separation(fname2, '1'); //1__data.txt
+    //~ separation(fname1, '0'); //0__data.bin
+    //~ separation(fname2, '1'); //1__data.bin
     thread t1(separation, fname1, '0');
     thread t2(separation, fname2, '1');
     t1.join();
     t2.join();
-    base_merge("0__data.txt", "1__data.txt", "temp.txt");
-    base_merge("temp.txt", "rest.txt", outfilename);
+    base_merge("0__data.bin", "1__data.bin", tempfilename);
+    base_merge(tempfilename, restfilename, outfilename);
     remove_final_files();
     return 0;
 }
