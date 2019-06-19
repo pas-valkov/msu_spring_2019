@@ -31,8 +31,7 @@ class Matrix {
             return row[a];
         }
         
-        //~ ~Row () { delete[] row; }
-        void destructor() { delete[] row; }
+        ~Row () { delete[] row; }
     };
     
     size_t rows, cols;
@@ -85,9 +84,10 @@ public:
     
     ~Matrix() {
         for (size_t i = 0; i < rows; ++i)
-            matrix[i].destructor();
+            matrix[i].~Row();
             //~ delete[] matrix[i].row;
-        delete[] matrix;
+        //~ delete[] matrix;
+        operator delete[] (matrix);
     }
 
     size_t getColumns() const {
